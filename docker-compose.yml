@@ -1,0 +1,43 @@
+# Orquestación de la API Fortaleza Nube junto con la capa de observabilidad.
+# Los tres servicios comparten la red bridge proyecto_red_proyecto,
+# donde también vive Nginx Proxy Manager (reutilizado del proyecto SRE).
+
+services:
+  api:
+    build: .
+    image: api-fortaleza-nube:latest
+    container_name: api-fortaleza-nube
+    restart: unless-stopped
+    expose:
+      - "8080"
+    networks:
+      - red_proyecto
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime_kuma
+    restart: unless-stopped
+    volumes:
+      - kuma_data:/app/data
+    networks:
+      - red_proyecto
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - red_proyecto
+
+networks:
+  red_proyecto:
+    name: proyecto_red_proyecto
+    driver: bridge
+    external: true
+
+volumes:
+  kuma_data:
+    name: proyecto_uptime_kuma_data
+    external: true
