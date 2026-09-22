@@ -45,8 +45,6 @@ jobs:
           script: |
             cd ~/recuperacion
             git pull origin main
-            docker compose down
-            docker compose up -d --build
-
-
-
+                        docker build -t api-fortaleza-nube .
+            docker rm -f api-fortaleza-nube || true
+            docker run -d --name api-fortaleza-nube -p 8080:8080 --restart unless-stopped api-fortaleza-nube
